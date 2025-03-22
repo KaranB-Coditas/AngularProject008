@@ -1,0 +1,58 @@
+<div class="grid grid-cols-12 gap-3" >
+    <div class="col-span-12 xl:col-span-12">
+        <p-card header="">
+            <div class="card flex justify-start gap-4 ml-0" >
+                <p-select [options]="reports" [(ngModel)]="selectedReport" optionLabel="name" placeholder="Select a Report" class="w-full md:w-50" />
+                <p-datepicker [(ngModel)]="rangeDates" selectionMode="range" [readonlyInput]="true" placeholder="Select date range"  />
+                <p-button label="View Report" severity="secondary" icon="pi pi-eye " [loading]="fetching" (onClick)="load($event)" />
+                <p-button label="Export"   icon="pi pi-upload" [loading]="exporting" (onClick)="export($event)"/>
+            </div>
+        </p-card>
+    </div>
+    <div class="col-span-12 xl:col-span-12">
+        <p-card header="">
+            <div class="card">
+                <p-table 
+                [exportHeader]="'customExportHeader'"
+                stripedRows  
+                [columns]="column" 
+                [value]="rowData" 
+                [first]="first"
+                [showCurrentPageReport]="true"
+                [paginator]="true"
+                [rows]="5"
+                [tableStyle]="{ 'min-width': '100rem' }"
+                [rowsPerPageOptions]="[5,10, 20, 50]"
+                (onPage)="pageChange($event)"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+                selectionMode="multiple" [(selection)]="selectedProduct" 
+                [scrollable]="true" scrollHeight="400px" [virtualScroll]="true" [virtualScrollItemSize]="46"
+                [resizableColumns]="true" columnResizeMode="expand"
+                >
+                    
+                    <ng-template #header let-columns>
+                        <tr>
+                            <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.headerName" >
+                                {{ col.headerName | formatHeader}} <p-sortIcon [field]="col.headerName"/>
+                                <p-columnFilter type="text" [field]="col.headerName" display="menu" />
+                            </th>
+                            
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-rowData let-columns="columns">
+                        
+                        <tr [pSelectableRow]="rowData">
+                            <td><p-tableCheckbox [value]="rowData" /></td>
+                            <td *ngFor="let col of columns">
+                                {{ rowData[col.headerName] }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    
+                </p-table>
+
+            </div>
+        </p-card>
+    </div>
+</div>

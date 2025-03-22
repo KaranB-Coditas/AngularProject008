@@ -1,0 +1,163 @@
+<div class="grid grid-cols-12 gap-1" >
+    <div class="col-span-12 xl:col-span-12">
+        <p-card header="Contacts" >
+            <div class="flex justify-end w-full mb-6">
+                <p-button (click)="backToList()" label="Back to List" icon="pi pi-chevron-circle-left" size="small" severity="secondary" />
+            </div>
+            <div class="flex justify-center items-center mb-6 gap-2">
+                <p-menubar [model]="listOptions" (click)="showDialog()"  />
+            </div>
+            <div class="flex justify-start items-center mb-3 gap-2">
+                <label  class="font-bold mb-2 block">Total Contacts: {{totalContacts}} </label>
+                
+            </div>
+            
+            <p-table 
+            [columns]="column" 
+            [value]="rowData" 
+            [tableStyle]="{ 'min-width': '100rem' }"
+            selectionMode="multiple" [(selection)]="selectedProduct"
+            [scrollable]="true" scrollHeight="400px" [virtualScroll]="true" [virtualScrollItemSize]="46"
+            [resizableColumns]="true" columnResizeMode="expand"
+            >
+                <ng-template #header let-columns>
+                    <tr>
+                        <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.headerName">
+                            {{ col.headerName | formatHeader}} <p-sortIcon [field]="col.headerName"/>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-rowData let-columns="columns">
+                    <tr [pSelectableRow]="rowData">
+                        <td><p-tableCheckbox [value]="rowData" /></td>
+                        <td *ngFor="let col of columns">
+                            {{ rowData[col.headerName] }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>
+
+<div class="card">
+    <p-dialog
+        header="Dialing Session"
+        [resizable]="false"
+        [closable]="false"
+        [modal]="true"
+        [maximizable]="true"
+        appendTo="body"
+        [(visible)]="dialogVisible"
+        [style]="{ width: '75vw' }"
+        [contentStyle]="{ height: '500px' }"
+    >
+        <ng-template pTemplate="header">
+            <div class="flex justify-between w-full">
+                <span class="text-lg font-semibold">Dialing Session</span>
+                <div class="flex gap-2">
+                    <p-button label="Pause Session" icon="pi pi-pause" size="small" severity="secondary" />
+                    <p-button label="End Session" icon="pi pi-times" severity="secondary" size="small" (onClick)="dialogVisible = false" />
+                </div>
+            </div>
+        </ng-template>
+
+        <div class="flex flex-row h-full">
+            <!-- Left Section: Table -->
+            <div class="w-1/3 overflow-auto p-4">
+                
+                <h3 class="text-lg font-semibold mb-4">Call Details - </h3>
+                <div class="space-y-2">
+                    <p-scrollpanel [style]="{ width: '100%', height: '100%' }">
+                        <div>
+                            <div class="text-xl font-medium text-surface-900 dark:text-surface-0 mt-2">First Name</div>
+                            <span class="font-medium text-secondary text-lg">Address</span><br/>
+                            <span class="font-medium text-secondary text-lg">Contact 1</span>
+                            <span class="font-medium text-secondary text-lg ml-2">Contact 2</span>
+                        </div>
+
+                        
+                    </p-scrollpanel>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <p-divider layout="vertical"></p-divider>
+
+            <!-- Right Section: Additional Data -->
+            <div class="w-1/3 p-4 overflow-auto bg-gray-50">
+                <h3 class="text-lg font-semibold mb-4">Call Outcome - </h3>
+                <div class="space-y-2">
+                    <p-scrollpanel [style]="{ width: '100%', height: '100%' }">
+                        
+                        <div class="flex flex-col md:items-start gap-0">
+                            <span class="font-normal text-secondary text-lg">
+                                Outcome Status: 
+                                
+                            </span><br/>
+                            <p-select [options]="outcomeStatus" [(ngModel)]="selectedOutcome" optionLabel="name" placeholder="Select Status" class="w-full md:w-56" /> <br/>
+                            <span class="font-normal text-secondary text-lg ">
+                                Call Note:   
+                                
+                            </span><br />
+                            <textarea rows="4" cols="40" pTextarea  [(ngModel)]="noteText"></textarea><br/>
+                            <span class="font-normal text-secondary text-lg">
+                                Followup Date: 
+                                
+                            </span>
+                            <p-datepicker [(ngModel)]="followupDate" /><br/>
+                        </div>
+
+                    </p-scrollpanel>
+                </div>
+            </div>
+
+            <p-divider layout="vertical"></p-divider>
+
+            <div class="w-1/3 overflow-auto p-4">
+                
+                <h3 class="text-lg font-semibold mb-4">Call Transcript - </h3>
+                <div class="space-y-2">
+                    <p-scrollpanel [style]="{ width: '100%', height: '100%' }">
+                        <p>
+                            Lorem ipsum dolor sit amet...
+                        </p>
+                        <p>
+                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium...
+                        </p>
+                        <p class="m-0">
+                            At vero eos et accusamus et iusto odio dignissimos...
+                    </p-scrollpanel>
+                </div>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+
+            <div class="flex justify-center items-center gap-4 flex-wrap w-full">
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="secondary">
+                    <span class="material-icons">mic</span>
+                </p-button>
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="secondary">
+                    <span class="material-icons">mic_off</span>
+                </p-button>
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="secondary">
+                    <span class="material-icons">radio_button_checked</span>
+                </p-button>
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="secondary">
+                    <span class="material-icons">replay</span>
+                </p-button>
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="danger">
+                    <span class="material-icons">call_end</span>
+                </p-button>
+                <p-button class="custom-button" icon="" aria-label="mute" size="large" [rounded]="true" severity="secondary">
+                   Next Call <span class="material-icons">keyboard_double_arrow_right</span>
+                </p-button>
+                
+            </div>
+        </ng-template>
+    </p-dialog>
+</div>
+
+

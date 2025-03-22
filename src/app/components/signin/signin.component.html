@@ -1,0 +1,27 @@
+<p-toast />
+<div class="login-container">
+    <div class="login-box">
+      <h2>Register</h2>
+      <span class="p-text-secondary block mb-8">Please enter your details.</span>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="fullname" class="font-semibold w-24">Full Name</label>
+        <input pInputText id="fullname" [pAutoFocus]="true" class="flex-auto" autocomplete="off" [(ngModel)] = "fullname" />
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="email" class="font-semibold w-24">Email</label>
+        <input pInputText id="email" type="email" class="flex-auto" autocomplete="off" [(ngModel)] = "email" />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <label for="enterpassword" class="font-semibold w-24">Enter Password</label>
+        <input pInputText id="enterpassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "enterpassword" />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <label for="reenterpassword" class="font-semibold w-24">Re-enter Password</label>
+        <input pInputText id="reenterpassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "reenterpassword" />
+      </div>
+      <div class="flex justify-end gap-2">
+        <p-button label="Cancel" severity="secondary" (click)="onCancel()" />
+        <p-button label="Register" (click)="onRegister()" />
+      </div>
+    </div>
+  </div>

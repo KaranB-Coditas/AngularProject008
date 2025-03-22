@@ -1,0 +1,24 @@
+<p-toast />
+<div class="login-container">
+    <div class="login-box">
+      <h2>Login</h2>
+      <span class="p-text-secondary block mb-8">Please enter your credentials.</span>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="username" class="font-semibold w-24">Username</label>
+        <input pInputText id="username" [pAutoFocus]="true" class="flex-auto" autocomplete="off" [(ngModel)] = "username" />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <label for="password" class="font-semibold w-24">Password</label>
+        <input pInputText id="password"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "password" />
+      </div>
+      
+      <div class="flex justify-end gap-2 mb-4">
+        <p-button label="Not yet registered?" (click)="onRegistration()" [link]="true"  />
+        <p-button label="Cancel" severity="secondary" (click)="onCancel()" />
+        <p-button label="Login" (click)="onLogin()" />
+        
+      </div>
+      <div class="flex items-stretch gap-8 ml-10 mb-2">
+      </div>
+    </div>
+  </div>

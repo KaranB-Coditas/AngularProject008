@@ -1,0 +1,48 @@
+<div class="grid grid-cols-12 gap-1" >
+    <div class="col-span-12 xl:col-span-12">
+        <p-card header="List" >
+            <div class="flex justify-center items-center mb-6 gap-2">
+                <p-menubar [model]="listOptions" />
+            </div>
+            <div class="card">
+                <p-progressbar *ngIf="loader" aria-label="Contact Processing..." mode="indeterminate" [style]="{'height': '1px'}" />
+            </div>
+            <p-table 
+            [columns]="listDataColumn" 
+            [value]="listData" 
+            [tableStyle]="{ 'min-width': '50rem' }"
+            selectionMode="multiple" [(selection)]="selectedProduct"
+            [scrollable]="true" scrollHeight="400px" [virtualScroll]="true" [virtualScrollItemSize]="46"
+            [resizableColumns]="true" columnResizeMode="expand"
+            >
+                <ng-template #header let-columns>
+                    <tr>
+                        <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                        <th style="width: 10rem">Action</th>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.headerName" >
+                            {{ col.headerName | formatHeader}} <p-sortIcon [field]="col.headerName"/>
+                        </th>
+                        
+                    </tr>
+                </ng-template>
+                <ng-template #body let-rowData let-columns="columns">
+                    <tr [pSelectableRow]="rowData">
+                        <td><p-tableCheckbox [value]="rowData" /></td>
+                        <td >
+                            <p-button (click)="actionOn(rowData)" icon="pi pi-cloud-download" aria-label="Process" [text]="true" size="small" severity="secondary"/>
+                            <p-button (click)="actionOn(rowData)" icon="pi pi-pen-to-square" aria-label="Edit"  [text]="true" size="small" severity="secondary"/>
+                            <p-button (click)="actionOn(rowData)" icon="pi pi-history" aria-label="Archive" [text]="true" size="small" severity="secondary"/>
+                            <p-button (click)="actionOn(rowData)" icon="pi pi-trash" aria-label="Delete"  [text]="true"  severity="secondary"  size="small"/>
+                        </td>
+                        <td *ngFor="let col of columns">
+                            {{ rowData[col.headerName] }}
+                        </td>
+                        
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>
+
+
