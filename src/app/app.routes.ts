@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { SigninComponent } from './components/signin/signin.component';
-import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { authGuard } from './auth/auth.guard';
+import { CrmconfigurationComponent } from './components/ui/crmconfiguration/crmconfiguration.component';
 
 export const routes: Routes = [
     {
@@ -23,6 +23,10 @@ export const routes: Routes = [
     {
         path: 'landing',
         component: LandingComponent
+    },
+    {
+        path: 'crmconfiguration',
+        component: CrmconfigurationComponent
     },
     {
         path: 'home',

@@ -1,6 +1,6 @@
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormatHeaderPipe } from '../../../pipes/format-header.pipe';
 import { ButtonModule } from 'primeng/button';
@@ -20,6 +20,9 @@ import { PanelModule } from 'primeng/panel';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Router, ActivatedRoute } from '@angular/router';
+import { CrmintegrationService } from '../../../service/crmintegration.service';
+import { Skeleton } from 'primeng/skeleton';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 interface RowData {
   id: string;
@@ -32,6 +35,16 @@ interface RowData {
   quantity: number;
   inventoryStatus: string;
   rating: number;
+}
+
+interface ContactRowData {
+  name: string;
+  email: string;
+  phone: string;
+  homePhone: string;
+  mobilePhone: string;
+  title: string;
+  department: string;
 }
 
 interface Column {
@@ -59,7 +72,7 @@ interface contact {
 
 @Component({
   selector: 'app-contactsection',
-  imports: [DatePickerModule,TextareaModule,ScrollPanelModule,PanelModule,DataViewModule,DialogModule,DividerModule,CardModule,Menubar, MenubarModule,TableModule,DatePicker,CommonModule,FormatHeaderPipe,ButtonModule,IconField,InputIcon,Select,FormsModule],
+  imports: [ProgressSpinner,Skeleton,DatePickerModule,TextareaModule,ScrollPanelModule,PanelModule,DataViewModule,DialogModule,DividerModule,CardModule,Menubar, MenubarModule,TableModule,DatePicker,CommonModule,FormatHeaderPipe,ButtonModule,IconField,InputIcon,Select,FormsModule],
   templateUrl: './contactsection.component.html',
   styleUrl: './contactsection.component.css'
 })
@@ -70,10 +83,15 @@ export class ContactsectionComponent implements OnInit {
 
   router = inject(Router);
   route = inject(ActivatedRoute);
+  crmintegrationService = inject(CrmintegrationService);
+  changeDetectorRef = inject(ChangeDetectorRef);
 
    rowData: RowData[] = [];
     column: Column[] = [];
     contacts: contact[] = [];
+
+    rowData1: ContactRowData[] = [];
+
     first = 0;
     rows = 10;
     rangeDates: Date[]  = [new Date(), new Date()];
@@ -92,6 +110,8 @@ export class ContactsectionComponent implements OnInit {
     exporting: boolean = false;
 
     totalContacts: number = 0;
+
+    isContactLoading: boolean = true;
 
     showDialog() {
       this.dialogVisible = true;
@@ -159,8 +179,7 @@ export class ContactsectionComponent implements OnInit {
     selectedProduct: RowData[] = [];
   
     ngOnInit(): void {
-      this.loadTableData();
-      this.fetchColumnsFromTableData()
+      
       this.reports = [
         { name: 'Coversation History', code: 'CH' },
         { name: 'Attempt History', code: 'AH' },
@@ -169,7 +188,41 @@ export class ContactsectionComponent implements OnInit {
       this.loadListOptionData();
       this.loadContacts();
       this.loadOutcomeStatus();
+
+      this.loadTableData();
+      this.fetchColumnsFromTableData()
+      this.loadCrmContacts();
     }
+
+    loadCrmContacts(){
+
+      this.crmintegrationService.fetchCrmData({userId: '1', objectType: localStorage.getItem('selectedSfObject')}).subscribe({
+        next: (response) => {
+          console.log('Fetch response:', response);
+          this.loadSfContacts(response.data.records);
+          this.isContactLoading = false;
+        },
+        error: (error) => {
+          console.error('Fetch failed:', error.message);
+        }
+      });
+
+    }
+
+    loadSfContacts(data: any){
+      debugger;
+      
+      this.rowData1 = data.map((element: any) => ({
+        name: element.name ?? "",
+        email: element.email ?? "",
+        phone: element.phone ?? "",
+        homePhone: element.homePhone ?? "",
+        mobilePhone: element.mobilePhone ?? "",
+        title: element.title ?? "",
+        department: element.department ?? ""
+      }));
+    }
+
   
     clickHere(){
       debugger;
@@ -177,9 +230,9 @@ export class ContactsectionComponent implements OnInit {
     }
   
     fetchColumnsFromTableData(){
-      if(this.rowData != null && this.rowData.length > 0){
-        this.column = Object.keys(this.rowData[0]).map((key) => ({
-          fieldType: typeof this.rowData[0][key as keyof RowData], 
+      if(this.rowData1 != null && this.rowData1.length > 0){
+        this.column = Object.keys(this.rowData1[0]).map((key) => ({
+          fieldType: typeof this.rowData1[0][key as keyof ContactRowData], 
           headerName: key
         }));
       }
@@ -199,6 +252,18 @@ export class ContactsectionComponent implements OnInit {
   }
   
     loadTableData(){
+      this.rowData1 = [
+        {
+          name: '',
+          email: '',
+          phone: '',
+          homePhone: '',
+          mobilePhone: '',
+          title: '',
+          department: ''
+        }
+      ]
+
       this.rowData = [
         {
             id: '1000',

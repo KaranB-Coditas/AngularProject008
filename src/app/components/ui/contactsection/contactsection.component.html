@@ -11,14 +11,19 @@
                 <label  class="font-bold mb-2 block">Total Contacts: {{totalContacts}} </label>
                 
             </div>
+
+            <div class="card flex justify-center mt-20 mb-50" *ngIf="isContactLoading" >
+                <p-progress-spinner ariaLabel="loading" />
+            </div>
             
             <p-table 
             [columns]="column" 
-            [value]="rowData" 
-            [tableStyle]="{ 'min-width': '100rem' }"
+            [value]="rowData1" 
+            [tableStyle]="{ 'max-width': '100rem' }"
             selectionMode="multiple" [(selection)]="selectedProduct"
             [scrollable]="true" scrollHeight="400px" [virtualScroll]="true" [virtualScrollItemSize]="46"
-            [resizableColumns]="true" columnResizeMode="expand"
+            [resizableColumns]="false" 
+            *ngIf="!isContactLoading"
             >
                 <ng-template #header let-columns>
                     <tr>
@@ -28,11 +33,11 @@
                         </th>
                     </tr>
                 </ng-template>
-                <ng-template #body let-rowData let-columns="columns">
-                    <tr [pSelectableRow]="rowData">
-                        <td><p-tableCheckbox [value]="rowData" /></td>
+                <ng-template #body let-rowData1 let-columns="columns">
+                    <tr [pSelectableRow]="rowData1">
+                        <td><p-tableCheckbox [value]="rowData1" /></td>
                         <td *ngFor="let col of columns">
-                            {{ rowData[col.headerName] }}
+                            {{ rowData1[col.headerName] }}
                         </td>
                     </tr>
                 </ng-template>

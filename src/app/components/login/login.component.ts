@@ -1,6 +1,6 @@
 declare var google: any;
 import { Component, inject, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../service/auth.service';
 import { Router } from '@angular/router';
 import { Dialog } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -46,8 +46,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(this.authService.checkAuthentication())
-    {
+    const userAccessId = this.authService.getDbContextLocalStorageUserAccessId();
+    const isAuthenticated = this.authService.getDbContextLocalStorageLoginStatus();
+    if(isAuthenticated && userAccessId !== ""){
       this.router.navigate(['/home']);
     }
   }
@@ -63,14 +64,22 @@ export class LoginComponent implements OnInit {
 
   onLogin() {
     debugger;
-    if(this.authService.login(this.username,this.password)){
-      this.router.navigate(['/home']);
-      this.showSuccess()
-    }
-    else{
-      this.showWarn()
-    }
-    
+    this.authService.login({ email: this.username, password: this.password })
+      .subscribe({
+        next: (response: any) => {
+          if (response.status === 'success') {
+            this.authService.setDbContextLocalStorageUserAccessId(response.userAccessId);
+            this.authService.setDbContextLocalStorageLoginStatus(true);
+            this.showSuccess();
+            this.router.navigate(['/home']);
+          }
+        },
+        error: (error) => {
+          this.authService.setDbContextLocalStorageUserAccessId("");
+          this.authService.setDbContextLocalStorageLoginStatus(false);
+          this.showWarn();
+        }
+      });
   }
 
   showSuccess() {

@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, inject  } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/auth.service';
+//import { AuthService } from '../../../auth/auth.service';
 
 
 @Component({
@@ -12,7 +12,7 @@ import { AuthService } from '../../../auth/auth.service';
 export class GooglesigninComponent implements AfterViewInit  {
 
   router = inject(Router);
-  authService = inject(AuthService);
+  //authService = inject(AuthService);
 
   ngAfterViewInit() {
     (window as any).google.accounts.id.initialize({
@@ -31,7 +31,7 @@ export class GooglesigninComponent implements AfterViewInit  {
   handleCredentialResponse(response: any) {
     console.log('Google Auth Response:', response);
     alert('Login successful!');
-    this.authService.setDbContextLocalStorageIsAuthenticated(true);
+    //this.authService.setDbContextLocalStorageIsAuthenticated(true);
     this.router.navigate(['/home']);
   }
 }

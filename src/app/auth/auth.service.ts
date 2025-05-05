@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthServiceDeprecated {
   constructor() {}
   localStorageUsername: string | null = null;
   localStoragePassword: string | null = null;

@@ -12,5 +12,12 @@
     <div class="col-span-12 xl:col-span-12">
         <app-sessionmonitor></app-sessionmonitor>
     </div>
+
+    <p-dialog header="Verify CRM" [modal]="true" [(visible)]="showCrmDialog" [style]="{ width: '60rem', height: '35rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true" [closable]="false"> 
+        <div >
+            <app-crmconfiguration />
+        </div>
+    </p-dialog>
     
+
 </div>

@@ -7,6 +7,7 @@ import { SettingComponent } from './setting/setting.component';
 import { DialerComponent } from './dialer/dialer.component';
 import { ContactsectionComponent } from './ui/contactsection/contactsection.component';
 import { ListsectionComponent } from './ui/listsection/listsection.component';
+import { CrmconfigurationComponent } from './ui/crmconfiguration/crmconfiguration.component';
 
 const routes: Routes = [
   { 
@@ -34,9 +35,13 @@ const routes: Routes = [
         path: 'lists',
         component: ListsectionComponent
       },
-      { 
+      {
         path: 'contacts', 
-        component: ContactsectionComponent 
+        component: ContactsectionComponent
+      },
+      {
+        path: 'crmconfiguration',
+        component: CrmconfigurationComponent
       }
     ]
   }

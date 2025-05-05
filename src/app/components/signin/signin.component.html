@@ -4,20 +4,36 @@
       <h2>Register</h2>
       <span class="p-text-secondary block mb-8">Please enter your details.</span>
       <div class="flex items-center gap-4 mb-4">
-        <label for="fullname" class="font-semibold w-24">Full Name</label>
-        <input pInputText id="fullname" [pAutoFocus]="true" class="flex-auto" autocomplete="off" [(ngModel)] = "fullname" />
+        <label for="firstName" class="font-semibold w-24">First Name</label>
+        <input pInputText id="firstName" [pAutoFocus]="true" class="flex-auto" autocomplete="off" [(ngModel)] = "firstName" />
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="lastName" class="font-semibold w-24">Last Name</label>
+        <input pInputText id="lastName" [pAutoFocus]="true" class="flex-auto" autocomplete="off" [(ngModel)] = "lastName" />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="email" class="font-semibold w-24">Email</label>
         <input pInputText id="email" type="email" class="flex-auto" autocomplete="off" [(ngModel)] = "email" />
       </div>
-      <div class="flex items-center gap-4 mb-8">
-        <label for="enterpassword" class="font-semibold w-24">Enter Password</label>
-        <input pInputText id="enterpassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "enterpassword" />
+      <div class="flex items-center gap-4 mb-4">
+        <label for="phoneNumber" class="font-semibold w-24">Phone Number</label>
+        <input pInputText id="phoneNumber" class="flex-auto" autocomplete="off" [(ngModel)] = "phoneNumber" />
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="companyId" class="font-semibold w-24">Company Id</label>
+        <input pInputText id="companyId" class="flex-auto" autocomplete="off" [(ngModel)] = "companyId" />
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="crmName" class="font-semibold w-24">Crm Name</label>
+        <input pInputText id="crmName" class="flex-auto" autocomplete="off" [(ngModel)] = "crmName" />
       </div>
       <div class="flex items-center gap-4 mb-8">
-        <label for="reenterpassword" class="font-semibold w-24">Re-enter Password</label>
-        <input pInputText id="reenterpassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "reenterpassword" />
+        <label for="enterPassword" class="font-semibold w-24">Enter Password</label>
+        <input pInputText id="enterPassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "enterPassword" />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <label for="reenterPassword" class="font-semibold w-24">Re-enter Password</label>
+        <input pInputText id="reenterPassword"  type="password" class="flex-auto" autocomplete="off" [(ngModel)] = "reenterPassword" />
       </div>
       <div class="flex justify-end gap-2">
         <p-button label="Cancel" severity="secondary" (click)="onCancel()" />

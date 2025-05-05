@@ -1,0 +1,64 @@
+<div class="card flex justify-center mt-20">
+    <p-stepper [value]="1" class="basis-[60rem]">
+        <p-step-list>
+            
+            <p-step [value]="1">CRM Selection</p-step>
+            <p-step [value]="2">Authentication</p-step>
+            <p-step [value]="3">Done</p-step>
+        </p-step-list>
+        <p-step-panels>
+            <p-step-panel [value]="1">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col h-48">
+                        <div class="card flex justify-center mt-20 mb-20">
+                            <div class="flex mx-auto gap-2" >
+                                <p-button label="Salesforce"  variant="outlined" [rounded]="true" [raised]="isSfBtnRaised" severity="secondary"
+                                (click)="clickSfBtn()" [disabled]="isSfBtnDisabled"/>
+                                <p-button label="Hubspot" variant="outlined" [rounded]="true" [raised]="isHsBtnRaised" severity="secondary"
+                                (click)="clickHsBtn()" [disabled]="isHsBtnDisabled"/>
+                                <p-button label="Outreach" variant="outlined" [rounded]="true" [raised]="isOtBtnRaised" severity="secondary"
+                                (click)="ClickOtBtn()" [disabled]="isOtBtnDisabled"/>
+                                <p-button label="Salesloft" variant="outlined" [rounded]="true" [raised]="isSlBtnRaised" severity="secondary"
+                                (click)="clickSlBtn()" [disabled]="isSlBtnDisabled"/>
+                            </div>
+                        </div>
+                        <div class="flex pt-6 justify-end">
+                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(2); setSelectedCrm()" />
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="2">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col h-48">
+                        <div class="card flex justify-center mt-20 mb-20">
+                            <p-progress-spinner *ngIf="isLoading" ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4" fill="transparent" />
+                            <p-button *ngIf="!isLoading" label="Verify" variant="outlined" [raised]="true" severity="secondary" [rounded]="true" (click)="verifyCrm()"/>
+                        </div>
+                    </div>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(1)" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="3">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col h-48">
+                        <div
+                            class="flex-auto flex justify-center items-center font-light text-xl text-gray-600"
+                        >
+                            Crm setup done successfully
+                        </div>
+                    </div>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" iconPos="right" (onClick)="activateCallback(2)" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="crmVerified()" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+        </p-step-panels>
+    </p-stepper>
+</div>

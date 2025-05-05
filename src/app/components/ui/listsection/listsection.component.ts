@@ -14,6 +14,13 @@ import { MenuItem } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProgressBar } from 'primeng/progressbar';
+import { Dialog } from 'primeng/dialog';
+import { CrmconfigurationComponent } from '../crmconfiguration/crmconfiguration.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { CrmintegrationService } from '../../../service/crmintegration.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { AuthService } from '../../../service/auth.service';
 
 interface RowData {
   id: string;
@@ -33,23 +40,15 @@ interface Column {
   headerName: string;
 }
 
-interface ListData {
-  Name: string;
-  Type: string;
-  createdOn: string;
-  updatedOn: string;
-  createdBy: string;
-}
 
 interface Report {
   name: string;
   code: string;
 }
 
-
 @Component({
   selector: 'app-listsection',
-  imports: [ProgressBar,CardModule,Menubar, MenubarModule,TableModule,DatePicker,CommonModule,FormatHeaderPipe,ButtonModule,IconField,InputIcon,Select,FormsModule],
+  imports: [ProgressSpinnerModule,SelectModule,InputTextModule,CrmconfigurationComponent,Dialog,ProgressBar,CardModule,Menubar, MenubarModule,TableModule,DatePicker,CommonModule,FormatHeaderPipe,ButtonModule,IconField,InputIcon,Select,FormsModule],
   templateUrl: './listsection.component.html',
   styleUrl: './listsection.component.css'
 })
@@ -57,6 +56,8 @@ interface Report {
 export class ListsectionComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
+  authService = inject(AuthService);
+  
   rowData: RowData[] = [];
   column: Column[] = [];
   listDataColumn: Column[] = [];
@@ -73,6 +74,22 @@ export class ListsectionComponent implements OnInit {
   fetching: boolean = false;
   exporting: boolean = false;
 
+  isShowDialog: boolean = false;
+
+  isCrmVerified: boolean = false;
+  isEditMode: boolean = false;
+  isClosableDialog: boolean = true;
+
+  listName: string = '';
+  dialogHeaderName: string = '';
+
+  sfObjectOptions: any[] = [];
+  selectedSfObject: any;
+
+  isShowLoaderDialog: boolean = false;
+
+  crmintegrationService = inject(CrmintegrationService);
+  
   actionOn( data: RowData){
     debugger;
     this.selectedProduct = [];
@@ -80,10 +97,6 @@ export class ListsectionComponent implements OnInit {
     this.processContacts();
     
   }
-
-  
-
-
   loadListOptionData() {
     this.listOptions = [
         {
@@ -93,12 +106,13 @@ export class ListsectionComponent implements OnInit {
         },
         {
             label: 'Create',
-            icon: 'pi pi-plus'
-            
+            icon: 'pi pi-plus',
+            command: () => this.showDialog(false)
         },
         {
             label: 'Edit',
-            icon: 'pi pi-pen-to-square'
+            icon: 'pi pi-pen-to-square',
+            command: () => this.showDialog(true)
         },
         {
             label: 'Archive',
@@ -109,6 +123,25 @@ export class ListsectionComponent implements OnInit {
             icon: 'pi pi-trash'
         }
     ]
+}
+
+createList(){
+  debugger;
+
+  const list: ListData = new ListData();
+  list.Name = this.listName;
+  list.Type = this.selectedSfObject.label;
+  list.CreatedOn = new Date().toUTCString();
+  list.CreatedBy = 'Karan';
+  list.UpdatedOn = new Date().toUTCString();
+  
+  this.listData.push(list);
+
+  localStorage.setItem('listData', JSON.stringify(this.listData));
+
+  this.listName = '';
+  this.selectedSfObject = null;
+
 }
 
 processContacts() {
@@ -136,16 +169,65 @@ export(event: any) {
 
 
   ngOnInit(): void {
-    this.loadTableData();
-    this.fetchColumnsFromTableData()
-    this.reports = [
-      { name: 'Coversation History', code: 'CH' },
-      { name: 'Attempt History', code: 'AH' },
-      { name: 'Session Report', code: 'SR' }
-    ];
+    debugger;
     this.loadListOptionData();
+
     this.loadListData();
     this.fetchColumnsFromListData();
+
+    this.isShowLoaderDialog = true;
+    debugger;
+    const oAuthResponse: any = JSON.parse(localStorage.getItem('OauthResponse') || '{}');
+    const userId: string = "0";
+    this.crmintegrationService.authStatus({ userAccessId: this.authService.getDbContextLocalStorageUserAccessId() })
+      .subscribe({
+        next: (response: any) => {
+          if (response.status === 'success') {
+            localStorage.setItem('isCrmVerified', 'true');
+            this.isCrmVerified = true;
+            
+            this.showDialog();
+            this.isShowLoaderDialog = false;
+          }
+        },
+        error: (error) => {
+          localStorage.setItem('isCrmVerified', 'false');
+          this.isCrmVerified = false;
+          
+          this.showDialog();
+          this.isShowLoaderDialog = false;
+        }
+      });
+
+    this.sfObjectOptions = [
+      { label: 'Contact', value: 'contact' },
+      { label: 'Lead', value: 'lead' },
+      { label: 'Account', value: 'account' }
+    ]
+  }
+
+  showDialog(isEditList: boolean | null = null) {
+    debugger;
+    if(this.isCrmVerified){
+      if(isEditList != null){
+        if(isEditList){
+          this.isEditMode = true;
+          this.dialogHeaderName = 'Edit List';
+        }
+        else {
+          this.isEditMode = false;
+          this.dialogHeaderName = 'Add New List';
+        }
+        this.isShowDialog = true;
+      }
+      
+    }
+    else{
+      this.isClosableDialog = false;
+      this.isShowDialog = true;
+      this.dialogHeaderName = 'Verify CRM';
+    }
+    
   }
 
   clickHere(){
@@ -153,14 +235,6 @@ export(event: any) {
     this.selectedProduct;
   }
 
-  fetchColumnsFromTableData(){
-    if(this.rowData != null && this.rowData.length > 0){
-      this.column = Object.keys(this.rowData[0]).map((key) => ({
-        fieldType: typeof this.rowData[0][key as keyof RowData], 
-        headerName: key
-      }));
-    }
-  }
 
   fetchColumnsFromListData(){
     if(this.listData != null && this.listData.length > 0){
@@ -179,301 +253,29 @@ export(event: any) {
   pageChange(event: any) {
     this.first = event.first;
     this.rows = event.rows;
-}
-exportCSV(){
-
-}
-
-  loadTableData(){
-    this.rowData = [
-      {
-          id: '1000',
-          code: 'f230fh0g3',
-          name: 'Bamboo Watch',
-          description: 'Product Description',
-          image: 'bamboo-watch.jpg',
-          price: 65,
-          category: 'Accessories',
-          quantity: 24,
-          inventoryStatus: 'INSTOCK',
-          rating: 5
-      },
-      {
-        id: '1001',
-        code: 'f230fh0g31',
-        name: 'Bamboo Watch1',
-        description: 'Product Description1',
-        image: 'bamboo-watch.jpg1',
-        price: 651,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '1002',
-        code: 'f230fh0g32',
-        name: 'Bamboo Watch2',
-        description: 'Product Description2',
-        image: 'bamboo-watch.jpg2',
-        price: 652,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '1003',
-        code: 'f230fh0g33',
-        name: 'Bamboo Watch3',
-        description: 'Product Description3',
-        image: 'bamboo-watch.jpg3',
-        price: 653,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '1004',
-        code: 'f230fh0g34',
-        name: 'Bamboo Watch4',
-        description: 'Product Description4',
-        image: 'bamboo-watch.jpg4',
-        price: 654,
-        category: 'Accessories4',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      },
-      {
-          id: '10005',
-        code: 'f230fh0g3',
-        name: 'Bamboo Watch',
-        description: 'Product Description',
-        image: 'bamboo-watch.jpg',
-        price: 65,
-        category: 'Accessories',
-        quantity: 24,
-        inventoryStatus: 'INSTOCK',
-        rating: 5
-      }
-    ];
   }
+  
 
   loadListData() {
-    this.listData = [
-      {
-      Name: 'List001',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'FFF',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List002',
-      Type: 'CRM',
-      createdOn: '2025/03/02',
-      createdBy: 'FFF',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List003',
-      Type: 'CRM',
-      createdOn: '2025/02/01',
-      createdBy: 'FRR',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List004',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'RF',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List005',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'GG',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List006',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'TGG',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List007',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'TGG',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List008',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'TGY',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List009',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'ERD',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List0011',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'GFT',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List0012',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'WAS',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List0013',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'XYX',
-      updatedOn: '2025/03/01'
-      },
-      {
-      Name: 'List0014',
-      Type: 'CRM',
-      createdOn: '2025/03/01',
-      createdBy: 'ABC',
-      updatedOn: '2025/03/01'
-      }
-  ];
+    debugger;
+    this.listData = JSON.parse(localStorage.getItem('listData') || '[]');
   }
 }
+
+class ListData{
+  Name: string;
+  Type: string;
+  CreatedOn: string;
+  CreatedBy: string;
+  UpdatedOn: string;
+
+  constructor(){
+    this.Name = '';
+    this.Type = '';
+    this.CreatedOn = '';
+    this.CreatedBy = '';
+    this.UpdatedOn = '';
+  }
+}
+
+

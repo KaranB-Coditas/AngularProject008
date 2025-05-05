@@ -6,6 +6,7 @@ import { AutoFocus } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Toast } from 'primeng/toast';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-signin',
@@ -22,11 +23,17 @@ import { Toast } from 'primeng/toast';
 })
 export class SigninComponent {
   messageService = inject(MessageService);
+  authService = inject(AuthService);
   router = inject(Router);
-  fullname: string = '';
+
+  firstName: string = '';
+  lastName: string = '';
+  phoneNumber: string = '';
+  companyId: number = 0;
+  crmName: string = '';
   email: string = '';
-  enterpassword: string = '';
-  reenterpassword: string = '';
+  enterPassword: string = '';
+  reenterPassword: string = '';
   allClear: boolean = false;
 
   showSuccess() {
@@ -41,26 +48,42 @@ export class SigninComponent {
 
   onRegister() {
     this.allClear = true;
-
-    if(this.fullname === "" 
+    debugger;
+    if(this.firstName === "" 
+      || this.lastName === ""
       || this.email === "" 
-      || this.enterpassword === "" 
-      || this.reenterpassword === ""
+      || this.phoneNumber === "" 
+      || this.companyId === 0 
+      || this.crmName === ""
+      || this.enterPassword === "" 
+      || this.reenterPassword === ""
     ){
       this.showWarn("Please enter all field values");
       this.allClear = false;
     }
-    if(this.enterpassword != this.reenterpassword){
+    if(this.enterPassword != this.reenterPassword){
       this.showWarn("Please enter same password");
       this.allClear = false;
     }
     if(this.allClear){
-      this.showSuccess();
-
-      setTimeout(()=>{
-        this.router.navigate(['/login']);
-      },2000);
-      
+      this.authService.register({firstName: this.firstName,
+        lastName: this.lastName, 
+        phoneNumber: this.phoneNumber, 
+        email: this.email, 
+        password: this.enterPassword, 
+        companyId: this.companyId, 
+        crmName: this.crmName}).subscribe({
+          next: (response) => {
+            this.showSuccess();
+            console.log(response);
+            this.authService.setDbContextLocalStorageUserAccessId(response.userAccessId);
+            this.router.navigate(['/crmconfiguration']);
+          },
+          error: (error) => {
+            console.error(error);
+            this.showWarn("Registration Failed. Please try again.");
+          }
+      })
     }
   }
 }

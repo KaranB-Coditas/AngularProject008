@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { Ripple } from 'primeng/ripple';
 import { MenuModule } from 'primeng/menu';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../service/auth.service';
 import { Router } from '@angular/router';
 import { SelectButton } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
@@ -121,8 +121,19 @@ export class LayoutComponent implements OnInit {
   authService = inject(AuthService);
   router = inject(Router);
   logOff() {
-    this.authService.logoff();
-    this.router.navigate(['/login']);
+
+    this.authService.logout({userAccessId: this.authService.getDbContextLocalStorageUserAccessId()}).subscribe({
+      next: (response: any) => {
+        if (response.status === 'success') {
+          this.authService.setDbContextLocalStorageLoginStatus(false);
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (error) => {
+        console.log(error);
+        this.authService.setDbContextLocalStorageLoginStatus(false);
+      }
+    });
   }
 
   onSelectButtonChange(event: any) {
